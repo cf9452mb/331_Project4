@@ -69,14 +69,14 @@ int main(int argc, const char* argv[])
 			for (int i = 2; i < command.length(); i++) key += argv[2][i];
 			if (!aBlock.removeData(key)) cout << "Invalid key... " << key << endl;
 		}
-        else if (command[1] == 'l')
-        {
-            aBlock.logicalDump();
-        }
-        else if (command[1] == 'p')
-        {
-            aBlock.physicalDump();
-        }
+        	else if (command[1] == 'l')
+        	{
+            		aBlock.logicalDump();
+        	}
+        	else if (command[1] == 'p')
+        	{
+            		aBlock.physicalDump();
+        	}
 		else
 		{ 
 			cout << "Invalid command..." << endl;
