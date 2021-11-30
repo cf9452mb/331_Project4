@@ -23,7 +23,7 @@
 	-z00000	: find the information of a given zip code, replace 00000 by the desired zip code (no leading zero).
         	(Example shown below)
 	-a00000	additional-record-file: add data to the file. Here to simplify, records can be chosen from additiona-record-file
-        to add. (Ex. If block.txt is the blocked sequence set file and toadd.txt is the additonal file of length-indicated records, then ./a.out block.txt -a1 toadd.txt    will add the record on the first line of toadd.txt)
+        	to add. (Ex. If block.txt is the blocked sequence set file and toadd.txt is the additonal file of length-indicated records, then ./a.out block.txt -a1 toadd.txt    will add the record on the first line of toadd.txt)
 	-d00000 : delete data from a file, replace 00000 by the zip code you want to delete (no leading zero). (Ex. If block.txt is the blocked sequence set file, then ./a.out block.txt -d56303    will delete the record with zip code 56303 if it exists)
     	-l  : show the logical ordering of the blocks and RBN's of the head and avail block
         	(Ex. ./a.out block.txt -l   will generate block.txt's logical dump)
