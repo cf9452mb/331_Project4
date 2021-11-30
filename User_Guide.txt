@@ -6,7 +6,6 @@
 - The main program can be used to show the logical or physical ordering of the blocks
 
 2. File location
-- All necessary CSV, C++ files, header files, and .txt files are compressed and stored in Project 3 - Team 1 - files.zip.
 - Compile the file generator.cpp to convert the .csv file.
 - Compile the file main.cpp to run program.
 
