@@ -1,0 +1,17 @@
+4756303,Saint Cloud,MN,Stearns,45.5713,-94.2036
+451009,Bondsville,MA,Hampden,42.2061,-72.3405
+441010,Brimfield,MA,Hampden,42.1165,-72.1885
+451037,Hardwick,MA,Worcester,42.3479,-72.2253
+471070,Plainfield,MA,Hampshire,42.5144,-72.9183
+421071,Russell,MA,Hampden,42.1471,-72.8403
+451072,Shutesbury,MA,Franklin,42.482,-72.4213
+481073,Southampton,MA,Hampshire,42.2247,-72.7194
+481074,South Barre,MA,Worcester,42.3854,-72.0954
+491075,South Hadley,MA,Hampshire,42.2375,-72.5811
+441077,Southwick,MA,Hampden,42.0511,-72.7706
+441079,Thorndike,MA,Hampden,42.1929,-72.3296
+471080,Three Rivers,MA,Hampden,42.1819,-72.3624
+401081,Wales,MA,Hampden,42.0627,-72.2046
+411082,Ware,MA,Hampshire,42.2618,-72.2583
+421083,Warren,MA,Worcester,42.204,-72.1994
+461107,Springfield,MA,Hampden,42.1179,-72.6065
