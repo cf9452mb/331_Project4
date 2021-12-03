@@ -119,12 +119,58 @@ int main(int argc, const char* argv[])
 					<< curBlockSize << endl << data;
 	simpleIndex << lastZip << ',' << blockCount << endl;
 	
-	int availBlock = blockCount + 1;
-	
+    int tailBlockNumber = blockCount;
+    
 	//close all files
-	outfile.close();
 	infile.close();
 	simpleIndex.close();
+    
+    int indexCount = 0;
+    curBlockSize = 0;
+    data = "";
+    line = "";
+    
+    ifstream index;
+    index.open(indexFile);
+    bool isFirst = true;
+    
+    //Write the index blocks after the sequence set blocks
+    while (getline(index, line)){
+        
+        curBlockSize += 12;
+        if (curBlockSize <= maxBlockSize){
+            data += line + '\n';
+            indexCount++;
+        }
+        else{
+            blockCount++;
+            precededBlock = blockCount - 1;
+            succeededBlock = blockCount + 1;
+            curBlockSize -= 12;
+            if(isFirst){
+                precededBlock = 0;
+                isFirst = false;
+            }
+            
+            outfile << blockFlag << blockCount << ',' <<  indexCount << ','  << precededBlock << ',' << succeededBlock << ','
+                << curBlockSize << endl << data;
+            
+            curBlockSize = 12;
+            indexCount = 1;
+            data = line + '\n';
+        }
+    }
+    
+    blockCount++;
+    precededBlock = blockCount - 1;
+    outfile << blockFlag << blockCount << ',' <<  indexCount << ','  << precededBlock << ',' << 0 << ','
+                    << curBlockSize << endl << data;
+    
+    int availBlock = blockCount + 1;
+    
+    outfile.close();
+    simpleIndex.close();
+    remove("simpleIndex.txt");
 	
 	//copy to a new file with header
 	ifstream feedFile;
@@ -149,6 +195,7 @@ int main(int argc, const char* argv[])
 		 << "Zip Code" << endl
 		 << availBlock << endl
 		 << '1' << endl
+         << tailBlockNumber << endl
 		 << '1' << endl;
 	
 	//data
