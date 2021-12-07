@@ -41,8 +41,8 @@ class Block
 		vector<int> avail_list;
 		/// Current active ptr
 		int headBlockNumber;
-        /// Current active ptr
-        int tailBlockNumber;
+        	/// Current active ptr
+        	int tailBlockNumber;
 		/// File name
 		string fileName;
 		/// Index file name;
@@ -51,12 +51,12 @@ class Block
 		int version;
 		/// Stale flag
 		int stale;
-        /// Header size
-        int headerSize;
+        	/// Header size
+        	int headerSize;
     
-        /// @brief Read header
-        /// @param infile A file to read
-        void readHeader(istream &infile);
+        	/// @brief Read header
+        	/// @param infile A file to read
+        	void readHeader(istream &infile);
 		
 		/// @brief Write header
 		/// @param outfile A file to write
@@ -83,11 +83,11 @@ class Block
 		/// @param block2 - The succeeded block of the main block
 		void redistribution(BlockNode<dataType> &block1, BlockNode<dataType> &block2);
     
-        friend class BPTree;
+        	friend class BPTree;
 		
 	public:
-        /// Block size
-        int blockSize;
+        	/// Block size
+        	int blockSize;
     
 		/// Max record data size
 		int maxDataSize;
@@ -137,11 +137,11 @@ class Block
 		/// @brief Search for a record
 		bool findRecord(const string &keyStr);
     
-        /// @brief Dump method showing logical ordering
-        void logicalDump();
+        	/// @brief Dump method showing logical ordering
+        	void logicalDump();
     
-        /// @brief Dump method showing physical ordering
-        void physicalDump();
+        	/// @brief Dump method showing physical ordering
+        	void physicalDump();
 };
 
 #include "Block.cpp"
