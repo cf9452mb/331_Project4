@@ -3,7 +3,8 @@
  * @brief Buffer class header file
  * @details This is the buffer class, IndexBuffer.h. This class reads in each field from the provided file or istream
  *          This class reads in each block header and its corresponding indexes
- *
+ * @author Justine Canlas
+ * @author Jordan Hebler
  * @author Myint Aung
  */
 
