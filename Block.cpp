@@ -45,30 +45,20 @@ BlockNode<dataType> Block<dataType> :: readBlock(const int &pos)
 		BlockNode<dataType> nullBlock;
 		return nullBlock;
 	}
-	
+    infile.seekg(headerSize+((blockSize * pos) - blockSize));
 	//read in data
 	DelimBuffer buffer;
-	if(buffer.read(infile))
-	{
-		int curBlockCount = 1;
-		while (curBlockCount <= blockCount)
-		{
-			if(buffer.getBlockNumber() == pos) break;
-			buffer.read(infile);
-			curBlockCount++;
-		}
-		if(buffer.getBlockNumber() == pos)
-		{
-			BlockNode<dataType> thisBlock(buffer.getBlockNumber(), buffer.getSBlockNumber(), buffer.getPBlockNumber());
-			for(int i = 0; i < buffer.getNumRecs(); i++)
-			{
-				dataType newEntry;
-				newEntry.unpack(buffer);
-				thisBlock.addData(newEntry);
-			}
-			return thisBlock;
-		}
-	}
+    if(buffer.read(infile)){
+        BlockNode<dataType> thisBlock(buffer.getBlockNumber(), buffer.getSBlockNumber(), buffer.getPBlockNumber());
+        for(int i = 0; i < buffer.getNumRecs(); i++)
+        {
+            dataType newEntry;
+            newEntry.unpack(buffer);
+            thisBlock.addData(newEntry);
+        }
+        return thisBlock;
+    }
+
 	
 	infile.close();
 	//return null if not found
@@ -204,6 +194,8 @@ void Block<dataType> :: readHeader(istream &infile)
 				
 		//check header's type
 		if (i == 1) 	  {version = str2int(header) + 1;}
+        else if (i == 2)  {headerSize = str2int(header);}
+        else if (i == 3)  {blockSize = str2int(header);}
 		else if (i == 5)  {maxDataSize = str2int(header);}
 		else if (i == 6)  
 		{
@@ -233,7 +225,8 @@ void Block<dataType> :: readHeader(istream &infile)
 			avail_list.push_back(avail);
 		}
 		else if (i == 15) {headBlockNumber = str2int(header);}
-		else if (i == 16) {stale = str2int(header);}
+        else if (i == 16) {tailBlockNumber = str2int(header);}
+		else if (i == 17) {stale = str2int(header);}
 	}
 }
 
@@ -244,8 +237,8 @@ void Block<dataType> :: writeHeader(ostream &outfile)
 {
 	outfile << "blocked sequence set with comma separated fields, length-indicated records" << endl
 		 	<< version << endl
-		 	<< "1024" << endl
-		 	<< "512" << endl
+		 	<< headerSize << endl
+		 	<< blockSize << endl
 		 	<< "ASCII" << endl
 		 	<< maxDataSize << endl
 		 	<< "50" << endl
@@ -264,6 +257,7 @@ void Block<dataType> :: writeHeader(ostream &outfile)
 	}
 	outfile	<< endl
 		  	<< headBlockNumber<< endl
+            << blockCount<< endl
 		 	<< "1" << endl;
 }
 
@@ -356,7 +350,7 @@ void Block<dataType> :: updateBlockFile(const BlockNode<dataType> &mainBlock, co
 			curBlock = mainBlock;
 			mainRead = true;
 		}
-		
+        outfile.seekp(headerSize + (blockSize * curBlock.getBlockNumber()) - blockSize);
 		writeBlockInfo(curBlock, outfile);
 		for (int j = 0; j < curBlock.getNumRecs(); j++)
 		{
@@ -378,12 +372,11 @@ void Block<dataType> :: updateBlockFile(const BlockNode<dataType> &mainBlock, co
 		else curBlock = readBlock(curBlock.getSBlockNumber());
 	}
 	
-    //cout << avail_list[0] << endl;
 	outfile.close();
 	remove(fileName.c_str());
 	rename("out_temp.txt", fileName.c_str());
 	
-	updateIndexFile();
+	//updateIndexFile();
 
 }
 
@@ -399,7 +392,6 @@ void Block<dataType> :: updateIndexFile()
 		
 	ofstream indexFile;
 	indexFile.open(indexFilename.c_str(), ofstream::trunc);
-	
 	BlockNode<dataType> curBlock = newBlock.readBlock(newBlock.getHeadBlockNumber());
 	while (curBlock.getBlockNumber() != 0)
 	{
@@ -410,6 +402,7 @@ void Block<dataType> :: updateIndexFile()
 	
 	indexFile.close();
 }
+
 
 /// @brief Output to terminal the logical ordering of the blocks
 template<class dataType>
@@ -539,6 +532,7 @@ void Block<dataType> :: sortRecords()
    
 	while (curBlock.getBlockNumber() != 0)
 	{
+        //cout << curBlock.getBlockNumber() << endl;
 		for (int k = 0; k < curBlock.getNumRecs(); k++)
 		{
 			dataType anEntry;
@@ -552,6 +546,7 @@ void Block<dataType> :: sortRecords()
 	sort(dataStore.begin(), dataStore.end());
 	
 	int size = dataStore.size();
+    
 	
 	// print header
 	cout << "+---------------------------------------------------------------------+" << endl;
