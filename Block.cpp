@@ -376,7 +376,7 @@ void Block<dataType> :: updateBlockFile(const BlockNode<dataType> &mainBlock, co
 	remove(fileName.c_str());
 	rename("out_temp.txt", fileName.c_str());
 	
-	//updateIndexFile();
+	updateIndexFile();
 
 }
 
@@ -532,7 +532,6 @@ void Block<dataType> :: sortRecords()
    
 	while (curBlock.getBlockNumber() != 0)
 	{
-        //cout << curBlock.getBlockNumber() << endl;
 		for (int k = 0; k < curBlock.getNumRecs(); k++)
 		{
 			dataType anEntry;
