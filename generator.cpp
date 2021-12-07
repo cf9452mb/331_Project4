@@ -30,12 +30,13 @@ int main(int argc, const char* argv[])
 	//open the old file and create a new file
 	string oldfile = argv[1];
 	string newfile = argv[2];
-	string indexFile = "simpleIndex.txt";
+    	string indexFile = "simpleIndex.txt";
 	char blockFlag = 'B';
-	int maxBlockSize, counter = 0;
+	int maxDataSize, blockSize, counter = 0, headerSize = 256;
 	stringstream s;
 	s << argv[3];
-	s >> maxBlockSize;
+    	s >> blockSize;
+    	maxDataSize = blockSize - 35;     //Ensure enough room for block header and end line markers for records
 	
 	//open the old data file.
 	ifstream infile;
@@ -44,15 +45,15 @@ int main(int argc, const char* argv[])
 	
 	//open a new block sequence set file
 	ofstream outfile;
-	outfile.open("temp.txt", ofstream::trunc); 
-	
-	//open a new simple index file
-	ofstream simpleIndex;
-	simpleIndex.open(indexFile, ofstream::trunc);
+	outfile.open("temp.txt", ofstream::trunc);
+    
+    	//open a new simple index file
+    	ofstream simpleIndex;
+    	simpleIndex.open(indexFile, ofstream::trunc);
 	
 	//initial necessary variable
 	int blockRec = 0, totalRec = 0, blockCount = 1;
-	string data = "", lastZip = "";
+    	string data = "", lastZip = "";
 	bool isFirstZip = 1;
 	
 	//start generating
@@ -60,15 +61,15 @@ int main(int argc, const char* argv[])
 	string oldline;
 	int previousBlockRec = 0;
 	
-    string line;
+    	string line;
 	//create temp.txt and dump.txt
-    while (getline(infile, line))
+    	while (getline(infile, line))
 	{
         counter++;
         if(counter > 3){
             //determine the block it belongs to
             curBlockSize += line.length() + 2;
-            if (curBlockSize <= maxBlockSize)
+            if (curBlockSize <= maxDataSize)
             {
                 stringstream l;
                 l << line.length() + 2;
@@ -87,9 +88,10 @@ int main(int argc, const char* argv[])
                 precededBlock = blockCount - 1;
                 succeededBlock = blockCount + 1;
                 curBlockSize -= (line.length() + 2);
+                outfile.seekp((blockSize * blockCount) - blockSize);
                 outfile << blockFlag << blockCount << ',' <<  blockRec << ','  << precededBlock << ',' << succeededBlock << ','
 					<< curBlockSize << endl << data;
-			
+                
                 //create the simple index file
                 simpleIndex << lastZip << ',' << blockCount << endl;
 			
@@ -109,68 +111,22 @@ int main(int argc, const char* argv[])
         }
 	}
     
-   
     int i = 0;
     while (oldline[i] != ',') {lastZip += oldline[i]; i++;}
     
 	//write the remaining data to the file
 	precededBlock = blockCount - 1;
+    	outfile.seekp((blockSize * blockCount) - blockSize);
 	outfile << blockFlag << blockCount << ',' <<  blockRec << ','  << precededBlock << ',' << 0 << ',' 
 					<< curBlockSize << endl << data;
-	simpleIndex << lastZip << ',' << blockCount << endl;
+    	simpleIndex << lastZip << ',' << blockCount << endl;
+    
+	int availBlock = blockCount + 1;
 	
-    int tailBlockNumber = blockCount;
-    
 	//close all files
+	outfile.close();
 	infile.close();
-	simpleIndex.close();
-    
-    int indexCount = 0;
-    curBlockSize = 0;
-    data = "";
-    line = "";
-    
-    ifstream index;
-    index.open(indexFile);
-    bool isFirst = true;
-    
-    //Write the index blocks after the sequence set blocks
-    while (getline(index, line)){
-        
-        curBlockSize += 12;
-        if (curBlockSize <= maxBlockSize){
-            data += line + '\n';
-            indexCount++;
-        }
-        else{
-            blockCount++;
-            precededBlock = blockCount - 1;
-            succeededBlock = blockCount + 1;
-            curBlockSize -= 12;
-            if(isFirst){
-                precededBlock = 0;
-                isFirst = false;
-            }
-            
-            outfile << blockFlag << blockCount << ',' <<  indexCount << ','  << precededBlock << ',' << succeededBlock << ','
-                << curBlockSize << endl << data;
-            
-            curBlockSize = 12;
-            indexCount = 1;
-            data = line + '\n';
-        }
-    }
-    
-    blockCount++;
-    precededBlock = blockCount - 1;
-    outfile << blockFlag << blockCount << ',' <<  indexCount << ','  << precededBlock << ',' << 0 << ','
-                    << curBlockSize << endl << data;
-    
-    int availBlock = blockCount + 1;
-    
-    outfile.close();
-    simpleIndex.close();
-    remove("simpleIndex.txt");
+    	simpleIndex.close();
 	
 	//copy to a new file with header
 	ifstream feedFile;
@@ -181,10 +137,10 @@ int main(int argc, const char* argv[])
 	
 	file << "blocked sequence set with comma separated fields, length-indicated records" << endl
 		 << "1" << endl
-		 << "1024" << endl
-		 << "512" << endl
+		 << headerSize << endl
+		 << blockSize << endl
 		 << "ASCII" << endl
-		 << maxBlockSize << endl
+		 << maxDataSize << endl
 		 << "50" << endl
 		 << indexFile << endl
 		 << "primaryIndex,blockNumber" << endl
@@ -194,10 +150,11 @@ int main(int argc, const char* argv[])
 		 << "Zip Code,Place,State,County,Lat,Long" << endl
 		 << "Zip Code" << endl
 		 << availBlock << endl
-		 << '1' << endl
-         << tailBlockNumber << endl
+		 << '1' << endl         //Head block number
+         	 << blockCount << endl  //Tail block number
 		 << '1' << endl;
 	
+    	file.seekp(headerSize);
 	//data
 	int curBlock = 1;
 	while (!feedFile.eof())
