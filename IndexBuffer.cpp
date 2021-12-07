@@ -2,7 +2,7 @@
 // IndexBuffer.cpp
 // Buffer class implementation file
 //
-// Author: Myint Aung
+// Author: Justine Canlas, Jordan Hebler, Myint Aung
 //-------------------------------------------------------------
 // This class reads in each field from the provided file or
 // istream. It reads in each block header and its corresponding
@@ -13,6 +13,8 @@
  * @file IndexBuffer.cpp
  * @brief Index class implementation file
  *
+ * @author Justine Canlas
+ * @author Jordan Hebler
  * @author Myint Aung
  */
 
