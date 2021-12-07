@@ -41,6 +41,8 @@ class Block
 		vector<int> avail_list;
 		/// Current active ptr
 		int headBlockNumber;
+        /// Current active ptr
+        int tailBlockNumber;
 		/// File name
 		string fileName;
 		/// Index file name;
@@ -49,10 +51,12 @@ class Block
 		int version;
 		/// Stale flag
 		int stale;
-		
-		/// @brief Read header
-		/// @param infile A file to read
-		void readHeader(istream &infile);
+        /// Header size
+        int headerSize;
+    
+        /// @brief Read header
+        /// @param infile A file to read
+        void readHeader(istream &infile);
 		
 		/// @brief Write header
 		/// @param outfile A file to write
@@ -77,11 +81,16 @@ class Block
 		/// @brief Merge 2 block to prevent underflow
 		/// @param block1 - The main block
 		/// @param block2 - The succeeded block of the main block
-		void redistribution(BlockNode<dataType> &block1, BlockNode<dataType> &block2);	
+		void redistribution(BlockNode<dataType> &block1, BlockNode<dataType> &block2);
+    
+        friend class BPTree;
 		
 	public:
-		/// Max block size
-		int maxDataSize = 512;
+        /// Block size
+        int blockSize;
+    
+		/// Max record data size
+		int maxDataSize;
 		
 		/// Min block size
 		int minDataSize = 256;
