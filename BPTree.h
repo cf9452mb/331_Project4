@@ -87,6 +87,8 @@ class BPTree {
 		/// @param IndexNode *
 		/// @return The tree is printed
         void display(IndexNode *);
+		/// @brief Accessor for the root node
+		/// @return This function returns the root
         IndexNode *getRoot();
 		/// @brief Inserting the pair to the B+ Tree
 		/// @param Pair 
