@@ -23,7 +23,9 @@ BPTree::BPTree() {
   root = NULL;
 }
 
-///@brief Find block that the key passed in may be contained in
+// @brief Find block that the key passed in may be contained in
+// @param A int int
+// @return The specified block
 Pair *BPTree::findBlock(int key){
     Pair *search = new Pair;
     
@@ -58,7 +60,9 @@ Pair *BPTree::findBlock(int key){
     return search;
 }
 
-///@brief Insert Operation
+// @brief Insert Operation
+// @param Pair 
+// @return The specified pair is inserted to the B+ Tree
 void BPTree::insert(Pair x) {
   // Inserting into an empty B+ Tree
   if (root == NULL) {
@@ -136,7 +140,9 @@ void BPTree::insert(Pair x) {
   }
 }
 
-///@brief Helper function for internal insertion
+// @brief Helper function for internal insertion
+// @param Pair, IndexNode *, IndexNode *
+// @return The specified Pair and nodes are inserted
 void BPTree::insertInternal(Pair x, IndexNode *cursor, IndexNode *child) {
   if (cursor->size < MAX) {
     int i = 0;
@@ -195,7 +201,9 @@ void BPTree::insertInternal(Pair x, IndexNode *cursor, IndexNode *child) {
   }
 }
 
-///@brief Find the parent IndexNode
+// @brief Find the parent IndexNode
+// @param IndexNode *, IndexNode *
+// @return The parent of the indexnode is returned
 IndexNode *BPTree::findParent(IndexNode *cursor, IndexNode *child) {
   IndexNode *parent;
   if (cursor->IS_LEAF || (cursor->ptr[0])->IS_LEAF) {
@@ -214,7 +222,9 @@ IndexNode *BPTree::findParent(IndexNode *cursor, IndexNode *child) {
   return parent;
 }
 
-///@brief Print the tree
+// @brief Print the tree
+// @param IndexNode *
+// @return The tree is printed
 void BPTree::display(IndexNode *cursor) {
   if (cursor != NULL) {
     for (int i = 0; i < cursor->size; i++) {
@@ -229,12 +239,15 @@ void BPTree::display(IndexNode *cursor) {
   }
 }
 
-///@brief Accessor for the root node
+// @brief Accessor for the root node
+// @return This function returns the root
 IndexNode *BPTree::getRoot() {
   return root;
 }
 
-///@brief Create a B+ Tree index from the Blocked sequence set file
+// @brief Create a B+ Tree index from the Blocked sequence set file
+// @param A string file
+// @return The B+Tree index is created
 void BPTree::createIndex(string name) {
     ifstream file;
     file.open(name);
@@ -267,7 +280,9 @@ void BPTree::createIndex(string name) {
     
 }
 
-///@brief Helper function to write the IndexNodes to the blocked sequence file
+// @brief Helper function to write the IndexNodes to the blocked sequence file
+//@param IndexNode *, int &, int, int, ofstream &
+// @return The indexnodes are written to the blocked sequence file
 void BPTree::writeNodes(IndexNode *cursor, int &count, int blockSize, int headerSize, ofstream &out) {
   if (cursor != NULL) {
       out.seekp((blockSize * count) + headerSize - blockSize);
@@ -284,7 +299,9 @@ void BPTree::writeNodes(IndexNode *cursor, int &count, int blockSize, int header
   }
 }
 
-///@brief Writes the IndexNodes to the blocked dequence file
+// @brief Writes the IndexNodes to the blocked dequence file
+// @param A string file
+// @return The blocked sequence file with the indexnodes
 void BPTree::writeIndex(string name) {
     ifstream ifile;
     string line;
@@ -314,7 +331,9 @@ void BPTree::writeIndex(string name) {
     
 }
 
-///@brief Search for a key in the blocked/index file
+// @brief Search for a key in the blocked/index file
+// @param A string string
+// @return A key is returned
 bool BPTree::lookUpKey(string key) {
     
     
