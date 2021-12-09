@@ -256,7 +256,7 @@ void BPTree::createIndex(string name) {
     aBlock.readHeader(file);
     
     // Sets the max number of Pairs per node
-    //MAX = (aBlock.maxDataSize/12);
+    // MAX = (aBlock.maxDataSize/12);
     
     BlockNode<Location> curBlock = aBlock.readBlock(aBlock.headBlockNumber);
     
@@ -281,7 +281,7 @@ void BPTree::createIndex(string name) {
 }
 
 // @brief Helper function to write the IndexNodes to the blocked sequence file
-//@param IndexNode *, int &, int, int, ofstream &
+// @param IndexNode *, int &, int, int, ofstream &
 // @return The indexnodes are written to the blocked sequence file
 void BPTree::writeNodes(IndexNode *cursor, int &count, int blockSize, int headerSize, ofstream &out) {
   if (cursor != NULL) {
@@ -321,7 +321,7 @@ void BPTree::writeIndex(string name) {
     aBlock.blockCount++;
     outfile.seekp((aBlock.blockSize * aBlock.blockCount) + aBlock.headerSize - aBlock.blockSize);
 
-    //Write the Index Nodes to the file
+    // Write the Index Nodes to the file
     writeNodes(getRoot(), aBlock.blockCount, aBlock.blockSize, aBlock.headerSize, outfile);
     
     ifile.close();
@@ -344,7 +344,7 @@ bool BPTree::lookUpKey(string key) {
     
     Pair *p = findBlock(aBlock.str2int(key));;
     
-    //target = desired output
+    // Target = desired output
     cout << p->RBN << endl;
     BlockNode<Location> posBlock = aBlock.readBlock(p->RBN);
     
@@ -359,7 +359,7 @@ bool BPTree::lookUpKey(string key) {
         if(target.getKey() == key) break;
     }
     
-    //print result if found
+    // Print result if found
     if (i == posBlock.getNumRecs())
         {cout << "Zip Code " << key << " is not found..." << endl; return false;}
     else
