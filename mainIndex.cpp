@@ -23,15 +23,20 @@ int main(int argc, const char* argv[])
         exit(1);
     }
     
-  //get arguments
+  //Get arguments
   blockFile = argv[1];
   string key = argv[2];
   
+  //Calls functions from the BPTree class and creates node as an object
   BPTree node;
+  //Calls createIndex from BPTree class
   node.createIndex(blockFile);
+  //Calls writeIndex from BPTree class
   node.writeIndex(blockFile);
-    
+  
+  //Calls display from BPTree class
   node.display(node.getRoot());
+  //Calls lookUpKey from BPTree class
   node.lookUpKey(key);
 
    
