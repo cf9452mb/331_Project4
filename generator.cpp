@@ -27,7 +27,7 @@ using namespace std;
 
 int main(int argc, const char* argv[])
 {
-	//open the old file and create a new file
+	// Open the old file and create a new file
 	string oldfile = argv[1];
 	string newfile = argv[2];
     	string indexFile = "simpleIndex.txt";
@@ -38,53 +38,53 @@ int main(int argc, const char* argv[])
     	s >> blockSize;
     	maxDataSize = blockSize - 35;     //Ensure enough room for block header and end line markers for records
 	
-	//open the old data file.
+	// Open the old data file.
 	ifstream infile;
 	infile.open(oldfile);
 	if (!infile) {cout << "There is no file in the storage..." << endl; return 0;}
 	
-	//open a new block sequence set file
+	// Open a new block sequence set file
 	ofstream outfile;
 	outfile.open("temp.txt", ofstream::trunc);
     
-    	//open a new simple index file
+    	// Open a new simple index file
     	ofstream simpleIndex;
     	simpleIndex.open(indexFile, ofstream::trunc);
 	
-	//initial necessary variable
+	// Initial necessary variable
 	int blockRec = 0, totalRec = 0, blockCount = 1;
     	string data = "", lastZip = "";
 	bool isFirstZip = 1;
 	
-	//start generating
+	// Start generating
 	int curBlockSize = 0, precededBlock, succeededBlock;
 	string oldline;
 	int previousBlockRec = 0;
 	
     	string line;
-	//create temp.txt and dump.txt
+	// Create temp.txt and dump.txt
     	while (getline(infile, line))
 	{
         counter++;
         if(counter > 3){
-            //determine the block it belongs to
+            // Determine the block it belongs to
             curBlockSize += line.length() + 2;
             if (curBlockSize <= maxDataSize)
             {
                 stringstream l;
                 l << line.length() + 2;
-                //if it belongs to the current block, add to the block
+                // If it belongs to the current block, add to the block
                 data += l.str() + line + '\n';
                 blockRec++; totalRec++;
             }
 		
             else
             {
-                //get the last zipcode for the simple index file
+                // Get the last zipcode for the simple index file
                 int i = 0;
                 while (oldline[i] != ',') {lastZip += oldline[i]; i++;}
 			
-                //block information
+                // Block information
                 precededBlock = blockCount - 1;
                 succeededBlock = blockCount + 1;
                 curBlockSize -= (line.length() + 2);
@@ -92,21 +92,21 @@ int main(int argc, const char* argv[])
                 outfile << blockFlag << blockCount << ',' <<  blockRec << ','  << precededBlock << ',' << succeededBlock << ','
 					<< curBlockSize << endl << data;
                 
-                //create the simple index file
+                // Create the simple index file
                 simpleIndex << lastZip << ',' << blockCount << endl;
 			
                 blockCount++;
                 
                 stringstream l;
                 l << line.length() + 2;
-                //give back the initial data
+                // Give back the initial data
                 previousBlockRec = blockRec;
                 blockRec = 1; totalRec++;
                 curBlockSize = line.length() + 2;
                 lastZip = ""; data = l.str() + line + '\n';
             }
 		
-            //store the old line
+            // Store the old line
             oldline = line;
         }
 	}
@@ -114,7 +114,7 @@ int main(int argc, const char* argv[])
     int i = 0;
     while (oldline[i] != ',') {lastZip += oldline[i]; i++;}
     
-	//write the remaining data to the file
+	// Write the remaining data to the file
 	precededBlock = blockCount - 1;
     	outfile.seekp((blockSize * blockCount) - blockSize);
 	outfile << blockFlag << blockCount << ',' <<  blockRec << ','  << precededBlock << ',' << 0 << ',' 
@@ -123,15 +123,15 @@ int main(int argc, const char* argv[])
     
 	int availBlock = blockCount + 1;
 	
-	//close all files
+	// Close all files
 	outfile.close();
 	infile.close();
     	simpleIndex.close();
 	
-	//copy to a new file with header
+	// Copy to a new file with header
 	ifstream feedFile;
 	feedFile.open("temp.txt");
-	//file header
+	// File header
 	ofstream file;
 	file.open(newfile);
 	
@@ -155,7 +155,7 @@ int main(int argc, const char* argv[])
 		 << '1' << endl;
 	
     	file.seekp(headerSize);
-	//data
+	// Data
 	int curBlock = 1;
 	while (!feedFile.eof())
 	{
@@ -166,6 +166,6 @@ int main(int argc, const char* argv[])
 	}
 	
 	feedFile.close();
-	//remove temp.txt
+	// Remove temp.txt
 	remove("temp.txt");
 }
