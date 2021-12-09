@@ -19,7 +19,7 @@
 
 #include "Block.h"
 
-/// @brief Default constructor
+// @brief Default constructor
 template<class dataType>
 Block<dataType> :: Block(const string &filename)
 {
@@ -27,26 +27,26 @@ Block<dataType> :: Block(const string &filename)
 }
 
 
-/// @brief Read block at a specific position
-/// @param int Read a block at this specified position
+// @brief Read block at a specific position
+// @param int Read a block at this specified position
 template<class dataType>
 BlockNode<dataType> Block<dataType> :: readBlock(const int &pos)
 {	
-	//the file must be blocked sequence set file
+	// The file must be blocked sequence set file
 	ifstream infile;
 	infile.open(fileName);
 	
-	//read headers
+	// Tead headers
 	readHeader(infile);
 	
-	//return null if pos > blockCount
+	// Return null if pos > blockCount
 	if (pos > blockCount || pos < 1)
 	{
 		BlockNode<dataType> nullBlock;
 		return nullBlock;
 	}
     infile.seekg(headerSize+((blockSize * pos) - blockSize));
-	//read in data
+	// Read in data
 	DelimBuffer buffer;
     if(buffer.read(infile)){
         BlockNode<dataType> thisBlock(buffer.getBlockNumber(), buffer.getSBlockNumber(), buffer.getPBlockNumber());
@@ -61,13 +61,14 @@ BlockNode<dataType> Block<dataType> :: readBlock(const int &pos)
 
 	
 	infile.close();
-	//return null if not found
+	//Return null if not found
 	BlockNode<dataType> nullBlock;
 	return nullBlock;		
 }
 
 
-/// @brief Count the number of nodes
+// @brief Count the number of nodes
+// @return The number of nodes
 template<class dataType>
 int Block<dataType> :: getBlockCount() const
 {
@@ -75,7 +76,11 @@ int Block<dataType> :: getBlockCount() const
 }
 
 		
-/// @brief Add new record to a the block
+// @brief Add new record to a the block
+// @pre Assume the record is compressed to a string with a correct format
+// @post The new record is added to the file
+// @param A record compressed as a string
+// @return True if added successfully, False otherwise
 template<class dataType>
 bool Block<dataType> :: addData(const dataType &record)
 {
@@ -84,7 +89,7 @@ bool Block<dataType> :: addData(const dataType &record)
 	BlockNode<dataType> sBlock = readBlock(desiredBlock.getSBlockNumber());
 	
 	if(desiredBlock.getDataSize() + record.getWeight() <= maxDataSize)
-	{	//not overload
+	{	// Not overload
 		desiredBlock.addData(record);
 		stale = 0;
 		recCount++;
@@ -92,8 +97,8 @@ bool Block<dataType> :: addData(const dataType &record)
 		updateBlockFile(desiredBlock, b, b);
 	}
 	else
-	{	//overload
-		//create a new block
+	{	// Overload
+		// Create a new block
 		int newBlockNum = avail_list[0];
 		auto newIt = avail_list.erase(avail_list.begin());
 		
@@ -103,17 +108,17 @@ bool Block<dataType> :: addData(const dataType &record)
 			avail_list.push_back(getBlockCount() + 1);
 		}
 		
-		//relink them
+		// Relink them
 		BlockNode<dataType> newBlock(newBlockNum, sBlock.getBlockNumber(), desiredBlock.getBlockNumber());		
 		desiredBlock.setSBlock(newBlock.getBlockNumber());
 		if (sBlock.getBlockNumber() != 0) sBlock.setPBlock(newBlockNum);
 		newBlock.addData(record);
 
-		//redistribute
+		// Redistribute
 		redistribution(desiredBlock, newBlock);
         cout << "Split Block " << desiredBlock.getBlockNumber() << " with Block " << newBlock.getBlockNumber() << endl;
 		
-		//update file
+		// Update file
 		stale = 0;
 		recCount++;
 		updateBlockFile(desiredBlock, newBlock, sBlock);
@@ -123,7 +128,10 @@ bool Block<dataType> :: addData(const dataType &record)
 }
 		
 		
-/// @brief Delete a record from the block
+// @brief Delete a record from the block
+// @post The record is deleted from the file
+// @param The key of the record needs to be deleted
+// @return True if deleted successfully, False otherwise
 template<class dataType>
 bool Block<dataType> :: removeData(const string &key)
 {
@@ -133,7 +141,7 @@ bool Block<dataType> :: removeData(const string &key)
 	BlockNode<dataType> desiredBlock = readBlock(desiredBlockPos);
 	int deletePos = 0;
 	for(deletePos = 0; deletePos < desiredBlock.getNumRecs(); deletePos++)
-	{	//search for data
+	{	// Search for data
 		dataType anEntry;
 		anEntry = desiredBlock.getData(deletePos);
 		if (key == anEntry.getKey()) break;
@@ -144,7 +152,7 @@ bool Block<dataType> :: removeData(const string &key)
 	stale = 0;
 
 	if (desiredBlock.getNumRecs() == 0)
-	{	//delete this block
+	{	// Delete this block
 
 		BlockNode<dataType> sBlock = readBlock(desiredBlock.getSBlockNumber());
 		BlockNode<dataType> pBlock = readBlock(desiredBlock.getPBlockNumber());
@@ -162,7 +170,7 @@ bool Block<dataType> :: removeData(const string &key)
 	}
 
 	else if (desiredBlock.getDataSize() < minDataSize && desiredBlock.getSBlockNumber() != 0)
-	{	//redistribute if neccessary
+	{	// Redistribute if neccessary
 		int sBlockNum = desiredBlock.getSBlockNumber();
 		BlockNode<dataType> sBlock = readBlock(sBlockNum);
 		if (sBlock.getDataSize() > minDataSize) redistribution(desiredBlock, sBlock);
@@ -172,7 +180,7 @@ bool Block<dataType> :: removeData(const string &key)
 	}
 	
 	else
-	{	//no need to do anything
+	{	// No need to do anything
 		BlockNode<dataType> b(-1);
 		updateBlockFile(desiredBlock, b, b);
 	}
@@ -181,18 +189,19 @@ bool Block<dataType> :: removeData(const string &key)
 }
 
 
-/// @brief Read header
+// @brief Read header
+// @param infile A file to read
 template<class dataType>
 void Block<dataType> :: readHeader(istream &infile)
 {
-	//retrive header
+	//Retrive header
 	for (int i = 0; i < 17; i++)
 	{
-		//read line by line
+		//Read line by line
 		string header;
 		getline(infile, header);
 				
-		//check header's type
+		//Check header's type
 		if (i == 1) 	  {version = str2int(header) + 1;}
         else if (i == 2)  {headerSize = str2int(header);}
         else if (i == 3)  {blockSize = str2int(header);}
@@ -231,7 +240,8 @@ void Block<dataType> :: readHeader(istream &infile)
 }
 
 
-/// @brief Write header
+// @brief Write header
+// @param outfile A file to write
 template<class dataType>
 void Block<dataType> :: writeHeader(ostream &outfile)
 {
@@ -262,15 +272,17 @@ void Block<dataType> :: writeHeader(ostream &outfile)
 }
 
 
-/// @brief Find fit block
+// @brief Find fit block
+// @param key A string
+// @return The desired block for the key
 template<class dataType>
 int Block<dataType> :: findDesiredBlock(const string &key)
 {
-	//open file
+	// Open file
 	ifstream indexFile;
 	indexFile.open(indexFilename);
 	
-	//get the desired block
+	// Get the desired block
 	int desiredBlock = -1, i;
 	string oldline, zip = "", blockStr = "";
 	while (!indexFile.eof())
@@ -306,13 +318,14 @@ int Block<dataType> :: findDesiredBlock(const string &key)
 	desiredBlock = str2int(blockStr);
 	return desiredBlock;
 	
-	//close and return
+	// Close and return
 	indexFile.close();
 	return desiredBlock;
 }
 
 
 /// @brief Write block information
+// @param outfile A file to write
 template<class dataType>
 void Block<dataType> :: writeBlockInfo(BlockNode<dataType> curBlock, ostream &outfile)
 {
@@ -323,14 +336,16 @@ void Block<dataType> :: writeBlockInfo(BlockNode<dataType> curBlock, ostream &ou
 	outfile << pBlockNum << ',' << sBlockNum << ',' << curBlock.getDataSize() << endl;
 }
 
-/// @brief Retrieve headBlockNumber
+// @brief Retrieve headBlockNumber
+// @return headBlockNumber
 template<class dataType>
 int Block<dataType> :: getHeadBlockNumber() const
 {
 	return headBlockNumber;
 }
 
-/// @brief Update the block file with new information
+// @brief Update the block file with new information
+// @param outfile Outstream
 template<class dataType>
 void Block<dataType> :: updateBlockFile(const BlockNode<dataType> &mainBlock, const BlockNode<dataType> &newBlock, const BlockNode<dataType> &sMainBlock)
 {	
@@ -381,7 +396,7 @@ void Block<dataType> :: updateBlockFile(const BlockNode<dataType> &mainBlock, co
 }
 
 
-/// @brief Update the index file
+// @brief Update the index file
 template<class dataType>
 void Block<dataType> :: updateIndexFile()
 {
@@ -404,7 +419,7 @@ void Block<dataType> :: updateIndexFile()
 }
 
 
-/// @brief Output to terminal the logical ordering of the blocks
+// @brief Output to terminal the logical ordering of the blocks
 template<class dataType>
 void Block<dataType> :: logicalDump()
 {
@@ -432,7 +447,7 @@ void Block<dataType> :: logicalDump()
     
 }
 	
-/// @brief Output to terminal the physical ordering of the blocks
+// @brief Output to terminal the physical ordering of the blocks
 template<class dataType>
 void Block<dataType> :: physicalDump()
 {
@@ -463,7 +478,8 @@ void Block<dataType> :: physicalDump()
 }
 
 
-/// @brief Find records
+// @brief Find records
+// @return returns true if record is found returns false if not found
 template<class dataType>
 bool Block<dataType> :: findRecord(const string &keyStr)
 {
@@ -592,7 +608,8 @@ void Block<dataType> :: sortRecords()
 }
 
 
-/// @brief string to int converter
+// @brief string to int converter
+// @return int value of the string s
 template<class dataType>
 int Block<dataType> :: str2int (const string &s) const
 {
@@ -606,7 +623,9 @@ int Block<dataType> :: str2int (const string &s) const
 }
 
 
-/// @brief Merge 2 block to prevent underflow
+// @brief Merge 2 block to prevent underflow
+// @param block1 - The main block
+// @param block2 - The succeeded block of the main block
 template<class dataType>
 void Block<dataType> :: redistribution(BlockNode<dataType> &block1, BlockNode<dataType> &block2)
 {
