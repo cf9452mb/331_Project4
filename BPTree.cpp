@@ -1,3 +1,15 @@
+//-------------------------------------------------------------
+// BPTree.cpp
+// Implementation file for a B+ Tree class
+//
+// Author: Jordan Hebler
+//-------------------------------------------------------------
+// This B+ Tree class can take a blocked sequence set file and
+// create a B+ Tree index. This class can be used for searching
+// and displaying Location objects, sorting Location objects,
+// and adding/deleting records from the blocked/index file.
+//-------------------------------------------------------------
+
 /**
  * @file BPTree.cpp
  * @brief A B+ Tree class
@@ -10,22 +22,24 @@
 using namespace std;
 
 //Max size of each Index Node
-int MAX = 4;
+int MAX;
 //Blocked file used in creating a B+ Tree index
 string blockFile;
 
+/// @brief constructor
 IndexNode::IndexNode() {
     key = new Pair[MAX];
     ptr = new IndexNode *[MAX + 1];
 }
 
+/// @brief constructor
 BPTree::BPTree() {
   root = NULL;
 }
 
-// @brief Find block that the key passed in may be contained in
-// @param A int int
-// @return The specified block
+/// @brief Find block that the key passed in may be contained in
+/// @param A int int
+/// @return The specified Pair that includes the Block
 Pair *BPTree::findBlock(int key){
     Pair *search = new Pair;
     
@@ -55,14 +69,16 @@ Pair *BPTree::findBlock(int key){
           search = &cursor->key[i];
           break;
         }
+        if (i == cursor->size - 1) {
+          search = &cursor->key[i];
+        }
       }
     }
     return search;
 }
 
-// @brief Insert Operation
-// @param Pair 
-// @return The specified pair is inserted to the B+ Tree
+/// @brief Inserting the pair to the B+ Tree
+/// @param Pair To be inserted
 void BPTree::insert(Pair x) {
   // Inserting into an empty B+ Tree
   if (root == NULL) {
@@ -140,9 +156,9 @@ void BPTree::insert(Pair x) {
   }
 }
 
-// @brief Helper function for internal insertion
-// @param Pair, IndexNode *, IndexNode *
-// @return The specified Pair and nodes are inserted
+/// @brief Helper function for internal insertion
+/// @param Pair, IndexNode *, IndexNode *
+/// @return The specified Pair and nodes are inserted
 void BPTree::insertInternal(Pair x, IndexNode *cursor, IndexNode *child) {
   if (cursor->size < MAX) {
     int i = 0;
@@ -201,9 +217,9 @@ void BPTree::insertInternal(Pair x, IndexNode *cursor, IndexNode *child) {
   }
 }
 
-// @brief Find the parent IndexNode
-// @param IndexNode *, IndexNode *
-// @return The parent of the indexnode is returned
+/// @brief The parent of the indexnode is found
+/// @param IndexNode *, IndexNode *
+/// @return The parent of the indexnode is returned
 IndexNode *BPTree::findParent(IndexNode *cursor, IndexNode *child) {
   IndexNode *parent;
   if (cursor->IS_LEAF || (cursor->ptr[0])->IS_LEAF) {
@@ -222,9 +238,7 @@ IndexNode *BPTree::findParent(IndexNode *cursor, IndexNode *child) {
   return parent;
 }
 
-// @brief Print the tree
-// @param IndexNode *
-// @return The tree is printed
+///@brief Print the tree
 void BPTree::display(IndexNode *cursor) {
   if (cursor != NULL) {
     for (int i = 0; i < cursor->size; i++) {
@@ -237,17 +251,22 @@ void BPTree::display(IndexNode *cursor) {
       }
     }
   }
+
 }
 
-// @brief Accessor for the root node
-// @return This function returns the root
+///@brief Accessor for the root node
 IndexNode *BPTree::getRoot() {
   return root;
 }
 
-// @brief Create a B+ Tree index from the Blocked sequence set file
-// @param A string file
-// @return The B+Tree index is created
+///@brief Clear the Tree and set root back to NULL
+void BPTree::clear() {
+  root = NULL;
+}
+
+/// @brief Create a B+ Tree index from the Blocked sequence set file
+/// @param A string file
+/// @post The B+Tree index is created
 void BPTree::createIndex(string name) {
     ifstream file;
     file.open(name);
@@ -256,7 +275,7 @@ void BPTree::createIndex(string name) {
     aBlock.readHeader(file);
     
     // Sets the max number of Pairs per node
-    // MAX = (aBlock.maxDataSize/12);
+    MAX = (aBlock.maxDataSize/12);
     
     BlockNode<Location> curBlock = aBlock.readBlock(aBlock.headBlockNumber);
     
@@ -278,12 +297,14 @@ void BPTree::createIndex(string name) {
     
     file.close();
     
+    writeIndex(name);
+    
 }
 
-// @brief Helper function to write the IndexNodes to the blocked sequence file
-// @param IndexNode *, int &, int, int, ofstream &
-// @return The indexnodes are written to the blocked sequence file
-void BPTree::writeNodes(IndexNode *cursor, int &count, int blockSize, int headerSize, ofstream &out) {
+/// @brief Helper function to write the IndexNodes to the blocked sequence file
+/// @param IndexNode *, int &, int, int, ofstream &
+/// @post The indexnodes are written to the blocked sequence file
+void BPTree::writeNodes(IndexNode *cursor, int count, int blockSize, int headerSize, ofstream &out) {
   if (cursor != NULL) {
       out.seekp((blockSize * count) + headerSize - blockSize);
       out << 'B' << count << ',' << cursor->size << endl;
@@ -299,9 +320,9 @@ void BPTree::writeNodes(IndexNode *cursor, int &count, int blockSize, int header
   }
 }
 
-// @brief Writes the IndexNodes to the blocked dequence file
-// @param A string file
-// @return The blocked sequence file with the indexnodes
+/// @brief Writes the indexnodes to the blocked sequence file
+/// @param A string file
+/// @return The blocked sequence file with the indexnodes
 void BPTree::writeIndex(string name) {
     ifstream ifile;
     string line;
@@ -318,11 +339,10 @@ void BPTree::writeIndex(string name) {
         outfile << line << "\n";
     }
 
-    aBlock.blockCount++;
-    outfile.seekp((aBlock.blockSize * aBlock.blockCount) + aBlock.headerSize - aBlock.blockSize);
+    int blocks = aBlock.blockCount + 1;
 
-    // Write the Index Nodes to the file
-    writeNodes(getRoot(), aBlock.blockCount, aBlock.blockSize, aBlock.headerSize, outfile);
+    //Write the Index Nodes to the file
+    writeNodes(getRoot(), blocks, aBlock.blockSize, aBlock.headerSize, outfile);
     
     ifile.close();
     outfile.close();
@@ -331,59 +351,91 @@ void BPTree::writeIndex(string name) {
     
 }
 
-// @brief Search for a key in the blocked/index file
-// @param A string string
-// @return A key is returned
-bool BPTree::lookUpKey(string key) {
+/// @brief A key is looked up in the blocked/index file and outputted if found
+/// @param string ZipCode to search for
+/// @post The record corresponding to the key is outputted if found
+void BPTree::lookUpKey(string keyStr) {
     
+    //Converts the -z command into the key form
+    int key = 0;
+    string keyS = "";
+    for (int i = 2; i < keyStr.length(); i++){
+        int num = keyStr[i] - '0';
+        key = key * 10 + num;
+        keyS += keyStr[i];
+    }
     
-    ifstream ifile;
-    ifile.open(blockFile);
+    ifstream file;
+    file.open(blockFile);
+    Block<Location> aBlock(blockFile);
+    
+    //Finds the block that they key may be contained in
+    Pair *p = findBlock(key);
+    
+    BlockNode<Location> b = aBlock.readBlock(p->RBN);
+    
+    //Calls Block class to search for record
+    aBlock.findRecord(keyS, b);
+    
+    file.close();
+
+}
+
+///@brief Sort records
+void BPTree::sortRecords() {
+    ifstream file;
+    file.open(blockFile);
+    Block<Location> aBlock(blockFile);
+    
+    aBlock.sortRecords();
+    
+    file.close();
+
+}
+
+/// @brief Add new record to the blocked/index file
+/// @pre Assume the record is compressed to a string with correct format
+/// @post The new record is added to the blocked/index file
+/// @param Location A record that is to be added to file
+void BPTree::add(Location l) {
+    ifstream file;
+    file.open(blockFile);
     Block<Location> aBlock(blockFile);
     
     
-    Pair *p = findBlock(aBlock.str2int(key));;
+    //Finds the block that they key may be contained in
+    Pair *p = findBlock(aBlock.str2int(l.getZipCode()));
     
-    // Target = desired output
-    cout << p->RBN << endl;
-    BlockNode<Location> posBlock = aBlock.readBlock(p->RBN);
+    BlockNode<Location> b = aBlock.readBlock(p->RBN);
     
-    if(posBlock.getBlockNumber() == 0)
-        {cout << "Zip Code " << key << " is not found..." << endl; return false;}
+    aBlock.addData(l, b);
     
-    Location target;
-    int i;
-    for (i = 0; i < posBlock.getNumRecs(); i++)
-    {
-        target = posBlock.getData(i);
-        if(target.getKey() == key) break;
-    }
+    file.close();
     
-    // Print result if found
-    if (i == posBlock.getNumRecs())
-        {cout << "Zip Code " << key << " is not found..." << endl; return false;}
-    else
-    {
-        cout << "+---------------------------------------------------------------------------------------+" << endl
-             << '|' << setw(7) << "Zipcode"
-             << '|' << setw(5) << "State"
-             << '|' << setw(20) << "County"
-             << '|' << setw(30) << "Name"
-             << '|' << setw(10) << "Latitude"
-             << '|' << setw(10) << "Longitude"
-             << '|' << endl
-             << "+---------------------------------------------------------------------------------------+" << endl
-             << '|' << setw(7) << target.getZipCode()
-             << '|' << setw(5) << target.getState()
-             << '|' << setw(20) << target.getCounty()
-             << '|' << setw(30) << target.getPlace()
-             << '|' << setw(10) << target.getLat()
-             << '|' << setw(10) << target.getLong()
-             << '|' << endl
-             << "+---------------------------------------------------------------------------------------+" << endl;
-        return true;
-    }
+    clear();
     
+    createIndex(blockFile);
+
+}
+
+/// @brief Delete a record from the blocked/index file
+/// @post The record is deleted from the file if found
+/// @param string The key of the record to be deleted
+void BPTree::remove(string key) {
+    ifstream file;
+    file.open(blockFile);
+    Block<Location> aBlock(blockFile);
     
+    Pair *p = findBlock(aBlock.str2int(key));
+    
+    BlockNode<Location> b = aBlock.readBlock(p->RBN);
+    
+    aBlock.removeData(key, b);
+    
+    file.close();
+    
+    clear();
+    
+    createIndex(blockFile);
 }
 
