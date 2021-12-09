@@ -19,7 +19,7 @@
 #ifndef LOCATION_HEADER
 #define LOCATION_HEADER
 
-#include "DelimBuffer.h"
+#include "IndexBuffer.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -109,7 +109,7 @@ class Location
 		/// @pre buffer must be declared and readed the data file before calling this method
 		/// @post Pass the next fields data to the Location object
 		/// @return Returns true if unpacked successfully
-        bool unpack(DelimBuffer &buffer);
+        bool unpack(IndexBuffer &buffer);
         
 		/// @brief Overloaded assignment operator for a location object
 		/// @param Location class object
