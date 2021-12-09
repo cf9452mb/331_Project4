@@ -1,3 +1,12 @@
+//-------------------------------------------------------------
+// Indexbuffer.h
+// Buffer class header file
+//
+// Author: Justine Canlas, Jordan Hebler, Myint Aung
+//-------------------------------------------------------------
+// This class reads in each field from the provided file or
+// istream. This class reads in each block header and its corresponding indexes
+//-------------------------------------------------------------
 /**
  * @file Indexbuffer.h
  * @brief Buffer class header file
