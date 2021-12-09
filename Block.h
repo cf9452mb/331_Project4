@@ -115,13 +115,13 @@ class Block
 		/// @post The new record is added to the file
 		/// @param A record compressed as a string
 		/// @return True if added successfully, False otherwise
-		bool addData(const dataType &record);
+		bool addData(const dataType &record, BlockNode<dataType>);
 		
 		/// @brief Delete a record from the block
 		/// @post The record is deleted from the file
 		/// @param The key of the record needs to be deleted
 		/// @return True if deleted successfully, False otherwise
-		bool removeData(const string &key);
+		bool removeData(const string &key, BlockNode<dataType>);
 		
 		/// @brief string to int converter
 		/// @return int value of the string s
@@ -135,7 +135,7 @@ class Block
 		void sortRecords();
 		
 		/// @brief Search for a record
-		bool findRecord(const string &keyStr);
+		bool findRecord(const string &keyStr, BlockNode<dataType> b);
     
         	/// @brief Dump method showing logical ordering
         	void logicalDump();
@@ -143,6 +143,7 @@ class Block
         	/// @brief Dump method showing physical ordering
         	void physicalDump();
 };
+
 
 #include "Block.cpp"
 #endif
