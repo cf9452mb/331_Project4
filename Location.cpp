@@ -91,7 +91,7 @@ void Location :: setLong(const float &val) { longitude = val; }
 
 
 /// @brief This method unpacks data from a buffer and pass it into the Location object
-bool Location :: unpack(IndexBuffer &buffer)
+bool Location :: unpack(DelimBuffer &buffer)
 {
 	bool result;
 	
