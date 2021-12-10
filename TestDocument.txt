@@ -1,0 +1,103 @@
+----------Search Test----------
+
+Notice:
+1. The data set being used for searching is us_postal_codes.csv
+===================================================================================================================
+Procedure as follows:
+
+1. Using generator.cpp, I created a file from us_postal_codes.csv called short.txt
+After compiling the main program, running ./a.out short.txt -1128 	Outputs:
+
++---------------------------------------------------------------------------------------+
+|Zipcode|State|              County|                          Name|  Latitude| Longitude|
++---------------------------------------------------------------------------------------+
+|   1128|   MA|             Hampden|                   Springfield|   42.0944|  -72.4889|
++---------------------------------------------------------------------------------------+
+
+2. Running ./a.out short.txt -z56303 					Outputs:
+
++---------------------------------------------------------------------------------------+
+|Zipcode|State|              County|                          Name|  Latitude| Longitude|
++---------------------------------------------------------------------------------------+
+|  56303|   MN|             Stearns|                   Saint Cloud|   45.5713|  -94.2036|
++---------------------------------------------------------------------------------------+
+
+3. Running ./a.out short.txt -z56379 					Outputs:
+
++---------------------------------------------------------------------------------------+
+|Zipcode|State|              County|                          Name|  Latitude| Longitude|
++---------------------------------------------------------------------------------------+
+|  56379|   MN|              Benton|                   Sauk Rapids|    45.604|  -94.1591|
++---------------------------------------------------------------------------------------+
+
+4. Running ./a.out short.txt -z83661 					Outputs:
+
++---------------------------------------------------------------------------------------+
+|Zipcode|State|              County|                          Name|  Latitude| Longitude|
++---------------------------------------------------------------------------------------+
+|  83661|   ID|             Payette|                       Payette|   44.0782|   -116.92|
++---------------------------------------------------------------------------------------+
+
+5. Running ./a.out short.txt -z520 					Outputs:
+
+Zip Code 520 is not found...
+
+6. Running ./a.out short.txt -z64100					Outputs:
+
+Zip Code 64100 is not found...
+
+===================================================================================================================
+
+----------Adding/Deleting Test----------
+
+Notice: 
+1. This test uses a smaller data set for adding and deleting data (easier to observe)
+2. The data set being used is short.csv
+3. For simplification, the aditional records to add from are in the toAdd.txt file
+4. We use -t to show the tree for this program. 
+
+
+===================================================================================================================
+-----Adding:-----
+
+Procedure as follows:
+
+Using generator.cpp, I created a blocked-sequence-set-file from short.csv called short.txt 
+
+Test 1
+We run ./a.out short.txt -a1 toAdd.txt  It does not output anything. 
+To show that it did what it was supposed to do, we use the command ./a.out short.txt -t and it outputs the following:
+
+1037
+1009 1027 1037
+1059 56303
+
+
+Test 2
+To make sure that the program can go down the list, we can run the command: ./a.out short.txt -a2 toAdd.txt.
+To show that it did what it was supposed to do, we use the command ./a.out short.txt -t and it outputs the following:
+
+1026
+1004 1009 1026
+1037 1059 56303
+
+===================================================================================================================
+-----Deleting-----
+
+Procedure as follows:
+
+Test 1
+We run ./a.out short.txt -d1027 to delete 1027 from the tree but when running the command, It does not output anything. 
+To show that it did what it was supposed to do, we use the command ./a.out short.txt -t and it outputs the following:
+
+1037
+1009 1026 1037
+1059 56303
+
+Test 2
+Another example we can show is trying to delete 56303 from the tree. We can do that by running the command ./a.out short.txt -d56303.
+It does not output anythnig so to show that it did what it was supposed to do, we use the comman ./a.out short.txt -t and it outputs the following:
+
+1037
+1009 1027 1037
+1059 1030
