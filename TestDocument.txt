@@ -60,7 +60,7 @@ Notice:
 ===================================================================================================================
 -----Adding:-----
 
-Procedure as follows:
+Procedure is as follows:
 
 Using generator.cpp, I created a blocked-sequence-set-file from short.csv called short.txt 
 
@@ -84,7 +84,7 @@ To show that it did what it was supposed to do, we use the command ./a.out short
 ===================================================================================================================
 -----Deleting-----
 
-Procedure as follows:
+Procedure is as follows:
 
 Test 1
 We run ./a.out short.txt -d1027 to delete 1027 from the tree but when running the command, It does not output anything. 
