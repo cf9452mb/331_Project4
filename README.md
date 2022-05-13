@@ -1,0 +1,133 @@
+# 331_Project4
+
+1. Purpose
+- The generator program helps convert the comma separated file to a block sequence set file to use in the mainIndex program
+    which then converts that into a blocked/index file.
+- The mainIndex program can be used to search for the information of a specific zip code given by the user
+- The mainIndex program can also be used to get the 4 extreme latitude/longitude locations for each state
+- The mainIndex program can be used to add or remove data from the blocked sequence set file
+- The mainIndex program can be used to show the logical or physical ordering of the blocks
+
+2. File location
+- All necessary CSV, C++ files, header files, and .txt files are compressed and stored in Project 4 - Team 1 - files.zip.
+- Compile the file generator.cpp to convert the .csv file.
+- Compile the file mainIndex.cpp to run program.
+
+3. Execution
+- To compile the generator program, use g++ generator.cpp -std=c++11
+	then execute the generator by: ./a.out *csv-file-name* *blocked-sequence-set-file-name* *max-block-size*
+    (Ex. ./a.out us_postal_codes.csv index.txt 512      Creates a blocked sequence set file named index.txt that is created from the us_postal_codes.csv file with a max block size of 512 bytes.)
+- To compile the main program, use: g++ mainIndex.cpp -std=c++11
+- After successfully compiling the main program, you can use ./a.out followed by the blocked sequence set file and a flag to execute the program and use the public methods in the BPTree class.
+	* The file must be converted before by using generator.cpp
+    * After running the program once, the blocked sequence file will be converted to a blocked/index file.
+- Each flag indicates a different task (A different public method to use in the BPTree class):
+    -t  : output the current B+ Tree containing the highest keys in each block
+        (Ex. ./a.out index.txt -t   will generate the current B+ Tree)
+	-s	: show a table of the 4 extreme latitude/longitude locations of each state.
+        (Example shown below)
+	-z00000	: find the information of a given zip code, replace 00000 by the desired zip code (no leading zero).
+        (Example shown below)
+	-a00000	additional-record-file: add data to the file. Here to simplify, records can be chosen from additiona-record-file
+        to add. (Ex. If index.txt is the blocked/index file and toadd.txt is the additonal file of length-indicated records, then ./a.out index.txt -a1 toadd.txt    will add the record on the first line of toadd.txt)
+	-d00000 : delete data from a file, replace 00000 by the zip code you want to delete (no leading zero). (Ex. If index.txt is the blocked/index file, then ./a.out index.txt -d56303    will delete the record with zip code 56303 if it exists)
+    
+    
+- When adding or deleting, the change can be easily seen by displaying the B+ Tree conents using the -t flag
+
+- NOTE* The Index Block size is set to 4 to easier output the B+ Tree on the screen. To modify the Index Block size to be the same as the size
+    of the Record Blocks, go to line 25 in BPTree.cpp and change: int MAX = 4; -->  int MAX;    ALSO: uncomment line 278 in the same file.
+
+- To show how to output the B+ Tree, we have used a smaller data set (short.csv) with a MAX IndexNode size of 4 since it easily fits on screen.
+  After compiling the generator program and running it on short.csv (./a.out short.csv short.txt 512), we compile the mainIndex program and
+  execute the command ./a.out short.txt -t
+    Output is:
+    1037 1084 1139
+    1009 1027 1037
+    1059 1072 1084
+    1096 1108 1139
+    1223 1230
+    
+    This correlates to the tree structure as follows:
+    
+                        _________1037 1084 1139_________
+                       /            /      \            \
+                      /            /        \            \
+                     /            /          \            \
+                    /            /            \            \
+                   /            /              \            \
+      1009 1027 1037    1059 1072 1084   1096 1108 1139    1223 1230
+        
+        
+- The file storing the data for the next 2 examples: us_postal_codes.csv
+
+- For example, if you want to find the zip code 56303:
+  After compiling the mainIndex program, use ./a.out index.txt -z56303, (index.txt is the blocked/index file) then the result will be:
++-------------------------------------------------------------------+
+|Zipcode|State|    County|                Name|  Latitude| Longitude|
++-------------------------------------------------------------------+
+|  56303|   MN|   Stearns|         Saint Cloud|   45.5713|  -94.2036|
++-------------------------------------------------------------------+
+
+- To find the 4 extreme latitude/longitude locations for each state, use ./a.out index.txt -s
++---------------------------------------------------------------------+
+|State|    Westernmost|    Easternmost|   Northernmost|   Southernmost|
++---------------------------------------------------------------------+
+|   AA|          34034|          34034|          34034|          34034|
+|   AK|          99923|          99546|          99723|          99546|
+|   AL|          36856|          36584|          35739|          36547|
+|   AP|          96507|          96373|          96507|          96373|
+|   AR|          72310|          72747|          72733|          71749|
+|   AZ|          86508|          85349|          86021|          85620|
+|   CA|          92267|          95536|          95567|          92173|
+|   CO|          81047|          81411|          81653|          81138|
+|   CT|           6243|           6831|           6079|           6836|
+|   DC|          20019|          20016|          20012|          20375|
+|   DE|          19944|          19716|          19810|          19975|
+|   FL|          33480|          32568|          32452|          33045|
+|   FM|          96941|          96941|          96941|          96941|
+|   GA|          31328|          30752|          30751|          31562|
+|   HI|          96898|          96769|          96722|          96772|
+|   IA|          52734|          51001|          52160|          52632|
+|   ID|          83238|          83844|          83826|          83237|
+|   IL|          60438|          62379|          60075|          62914|
+|   IN|          47003|          47631|          46530|          47635|
+|   KS|          66118|          67836|          66955|          66778|
+|   KY|          41568|          42050|          41074|          42049|
+|   LA|          70081|          71007|          71075|          70081|
+|   MA|           2643|           1258|           1913|           2564|
+|   MD|          21842|          21531|          21088|          21866|
+|   ME|           4631|           4261|           4741|           3904|
+|   MH|          96960|          96970|          96970|          96960|
+|   MI|          48061|          49938|          49918|          49232|
+|   MN|          55605|          56740|          56711|          55931|
+|   MO|          63881|          64496|          63535|          63829|
+|   MP|          96950|          96951|          96951|          96952|
+|   MS|          38847|          39165|          38671|          39558|
+|   MT|          59319|          59844|          59484|          59739|
+|   NC|          27982|          28903|          28631|          28468|
+|   ND|          58074|          58621|          58255|          58043|
+|   NE|          68431|          69352|          69365|          68325|
+|   NH|           3854|           3466|           3592|           3062|
+|   NJ|           7620|           8070|           7827|           8212|
+|   NM|          88135|          88056|          87418|          88063|
+|   NV|          89034|          89402|          89404|          89029|
+|   NY|          11954|          14736|          12979|          10307|
+|   OH|          44438|          45003|          44030|          45680|
+|   OK|          74901|          73946|          74072|          74747|
+|   OR|          97842|          97465|          97121|          97635|
+|   PA|          18336|          16155|          16428|          19351|
+|   PW|          96940|          96940|          96940|          96940|
+|   RI|           2837|           2891|           2824|           2807|
+|   SC|          29566|          29658|          29356|          29915|
+|   SD|          57068|          57724|          57645|          57049|
+|   TN|          37680|          38109|          37119|          37396|
+|   TX|          75932|          79821|          79051|          78522|
+|   UT|          84534|          84083|          84331|          84784|
+|   VA|          23336|          24248|          22625|          24580|
+|   VT|           5902|           5734|           5902|           5352|
+|   WA|          99402|          98350|          98231|          98671|
+|   WI|          54246|          54082|          54850|          53102|
+|   WV|          25425|          25555|          26050|          24884|
+|   WY|          82082|          83120|          82423|          82321|
++---------------------------------------------------------------------+
